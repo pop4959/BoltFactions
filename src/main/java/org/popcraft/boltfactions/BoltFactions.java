@@ -1,10 +1,9 @@
 package org.popcraft.boltfactions;
 
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.Factions;
-import com.massivecraft.factions.FactionsPlugin;
+import dev.kitteh.factions.FPlayer;
+import dev.kitteh.factions.FPlayers;
+import dev.kitteh.factions.Faction;
+import dev.kitteh.factions.Factions;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -14,7 +13,6 @@ import org.popcraft.bolt.source.SourceTypes;
 
 public final class BoltFactions extends JavaPlugin implements Listener {
     private BoltAPI bolt;
-    private FactionsPlugin factions;
 
     @Override
     public void onEnable() {
@@ -23,8 +21,7 @@ public final class BoltFactions extends JavaPlugin implements Listener {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        this.factions = (FactionsPlugin) getServer().getPluginManager().getPlugin("Factions");
-        if (factions == null) {
+        if (!getServer().getPluginManager().isPluginEnabled("FactionsUUID")) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -36,22 +33,15 @@ public final class BoltFactions extends JavaPlugin implements Listener {
             if (player == null) {
                 return false;
             }
-            final FPlayer fPlayer = FPlayers.getInstance().getByPlayer(player);
-            if (fPlayer == null) {
-                return false;
-            }
+            final FPlayer fPlayer = FPlayers.fPlayers().get(player);
             final String factionName = source.getIdentifier();
-            final Faction faction = Factions.getInstance().getByTag(factionName);
-            if (faction == null) {
-                return false;
-            }
-            return faction.getFPlayerAdmin().getName().equals(player.getName()) || faction.getFPlayers().contains(fPlayer);
+            final Faction faction = Factions.factions().get(factionName);
+            return fPlayer.faction() == faction;
         });
     }
 
     @Override
     public void onDisable() {
         this.bolt = null;
-        this.factions = null;
     }
 }
